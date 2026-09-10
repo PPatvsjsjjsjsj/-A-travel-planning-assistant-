@@ -1,0 +1,4 @@
+interface:
+  display_name: "避坑建议"
+  short_description: "Common travel risks and practical safeguards"
+  default_prompt: "Use $travel-pitfalls to identify common travel pitfalls for this China trip."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "沿途景点"
+  short_description: "Worthwhile attraction stops along the route"
+  default_prompt: "Use $enroute-attractions to recommend worthwhile stops along this China trip."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "节庆礼仪"
+  short_description: "Festival participation and etiquette guidance"
+  default_prompt: "Use $festival-etiquette to advise on festival etiquette for this China trip."

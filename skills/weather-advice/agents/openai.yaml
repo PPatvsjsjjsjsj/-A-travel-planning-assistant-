@@ -1,0 +1,4 @@
+interface:
+  display_name: "天气与季节"
+  short_description: "Weather preparation for China travel plans"
+  default_prompt: "Use $weather-advice to prepare weather and seasonal advice for this China trip."

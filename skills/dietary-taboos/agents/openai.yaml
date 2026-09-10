@@ -1,0 +1,4 @@
+interface:
+  display_name: "饮食禁忌"
+  short_description: "Dietary restrictions and allergy safeguards"
+  default_prompt: "Use $dietary-taboos to account for dietary restrictions on this China trip."

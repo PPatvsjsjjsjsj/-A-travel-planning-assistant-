@@ -1,0 +1,4 @@
+interface:
+  display_name: "路线规划"
+  short_description: "Efficient intercity and local route planning"
+  default_prompt: "Use $route-planning to design an efficient route for this China trip."

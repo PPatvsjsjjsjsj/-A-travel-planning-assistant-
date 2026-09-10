@@ -1,0 +1,4 @@
+interface:
+  display_name: "特色文化"
+  short_description: "Meaningful history and cultural experiences"
+  default_prompt: "Use $regional-culture to add meaningful cultural experiences to this China trip."

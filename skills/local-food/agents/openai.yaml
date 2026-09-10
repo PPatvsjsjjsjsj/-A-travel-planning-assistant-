@@ -1,0 +1,4 @@
+interface:
+  display_name: "当地美食"
+  short_description: "Representative local food and dining advice"
+  default_prompt: "Use $local-food to recommend representative local food for this China trip."

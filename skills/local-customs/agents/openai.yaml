@@ -1,0 +1,4 @@
+interface:
+  display_name: "风土民情"
+  short_description: "Respectful guidance on customs and communities"
+  default_prompt: "Use $local-customs to explain local customs for this China trip."

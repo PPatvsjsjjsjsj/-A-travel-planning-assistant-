@@ -1,0 +1,4 @@
+interface:
+  display_name: "旅游预算"
+  short_description: "Practical itemized China travel budgeting"
+  default_prompt: "Use $trip-budget to estimate a practical budget for this China trip."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "旅游准备"
+  short_description: "按目的地季节交通方式和同行人员生成可执行出行准备清单"
+  default_prompt: "使用 $travel-preparation 为我的中国境内行程生成分类准备清单。"
