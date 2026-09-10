@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="探山，中国境内智能旅行规划 Agent">
+  <title>探山 · 中国旅行规划 Agent</title>
+  <link rel="preconnect" href="https://webapi.amap.com">
+  <link rel="stylesheet" href="{{ url_for('static', path='/app.css') }}?v=20260716-agent-weather">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="探山首页">
+        <span class="brand-mark">探</span>
+        <span><strong>探山</strong><small>中国旅行计划</small></span>
+      </a>
+      <nav class="main-nav" aria-label="功能板块">
+        <button class="nav-item active" type="button" data-view="chat"><i data-lucide="message-circle"></i><span>对话规划</span></button>
+        <button class="nav-item" type="button" data-view="overview"><i data-lucide="route"></i><span>行程总览</span></button>
+        <button class="nav-item" type="button" data-view="itinerary"><i data-lucide="calendar-days"></i><span>每日路线</span></button>
+        <button class="nav-item" type="button" data-view="map"><i data-lucide="map"></i><span>高德地图</span></button>
+        <button class="nav-item" type="button" data-view="gallery"><i data-lucide="images"></i><span>景点图库</span></button>
+        <button class="nav-item" type="button" data-view="budget"><i data-lucide="wallet-cards"></i><span>预算贴士</span></button>
+        <button class="nav-item" type="button" data-view="preparation"><i data-lucide="luggage"></i><span>旅游准备</span></button>
+      </nav>
+      <div class="service-status">
+        <div><i class="status-dot {{ 'online' if deepseek_enabled else '' }}"></i><span>规划</span><strong>{{ 'DeepSeek' if deepseek_enabled else '本地模式' }}</strong></div>
+        <div><i class="status-dot {{ 'online' if amap_enabled else '' }}"></i><span>地图</span><strong>{{ '高德已连接' if amap_enabled else '待配置' }}</strong></div>
+      </div>
+    </aside>
+
+    <main class="main-stage">
+      <header class="stage-header">
+        <div class="stage-heading">
+          <div class="stage-title"><p id="viewEyebrow">TRAVEL CONVERSATION</p><h1 id="viewTitle">对话规划</h1></div>
+          <p id="travelQuote" class="travel-quote">“我会陪着你找到你人生的25号底片”</p>
+        </div>
+        <div class="header-actions">
+          <span id="tripRoute" class="trip-route hidden"></span>
+          <button id="clearSession" class="icon-button" type="button" title="新建会话" aria-label="新建会话"><i data-lucide="plus"></i></button>
+        </div>
+      </header>
+
+      <div class="view-stack">
+        <section class="app-view active" data-view-panel="chat">
+          <div class="chat-layout">
+            <section class="conversation-panel">
+              <div id="chatMessages" class="chat-messages" aria-live="polite">
+                <article class="message agent-message">
+                  <img class="agent-avatar" src="/static/scenes/wangge-avatar.jpg" alt="王哥头像">
+                  <div class="message-body"><span class="message-role">王哥 · 旅行向导</span><p>来，直接把出发地、目的地、玩几天告诉我。人数、预算、交通偏好和忌口一并说更省事，王哥给你把路线捋顺，少走冤枉路。</p></div>
+                </article>
+              </div>
+              <div id="quickPrompts" class="quick-prompts">
+                <button type="button" data-prompt="从上海去成都，玩5天，2个人，预算舒适，喜欢美食和休闲">上海到成都 · 5天</button>
+                <button type="button" data-prompt="从北京坐高铁去杭州，玩3天，喜欢自然和摄影">北京到杭州 · 高铁</button>
+                <button type="button" data-prompt="从广州自驾去桂林，玩4天，沿途也想看风景">广州到桂林 · 自驾</button>
+              </div>
+              <form id="chatForm" class="chat-composer">
+                <textarea id="chatInput" rows="1" maxlength="800" placeholder="例如：从南京去西安，4天，2个人，喜欢历史和美食" aria-label="旅行计划" required></textarea>
+                <button id="sendButton" type="submit" aria-label="发送旅行计划" title="发送"><i data-lucide="arrow-up"></i></button>
+              </form>
+            </section>
+
+            <aside class="travel-brief">
+              <div id="briefVisual" class="brief-visual">
+                <img id="briefImage" src="/static/scenes/sunset-water.jpg" alt="日落水面与远方树影的真实风景">
+              </div>
+              <div class="brief-scenes" aria-label="旅途风景">
+                <img src="/static/scenes/desert-road.jpg" alt="荒漠公路与远山">
+                <img src="/static/scenes/golden-road.jpg" alt="金色树林中的山路">
+                <img src="/static/scenes/mountain-horizon.jpg" alt="夕照山路与群山">
+              </div>
+              <div class="brief-heading"><span>当前计划</span><strong id="briefStatus">等待目的地</strong></div>
+              <dl id="briefDetails" class="brief-details">
+                <div><dt>路线</dt><dd>尚未确定</dd></div><div><dt>天数</dt><dd>--</dd></div>
+                <div><dt>人数</dt><dd>--</dd></div><div><dt>预算</dt><dd>--</dd></div>
+              </dl>
+              <div class="skill-summary"><span>本次调用</span><div id="briefSkills"><i>路线</i><i>预算</i><i>美食</i><i>准备</i></div></div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="app-view" data-view-panel="overview">
+          <div id="overviewEmpty" class="empty-view"><i data-lucide="route"></i><h2>行程总览还未生成</h2><p>先告诉探山你的出发地和目的地。</p><button type="button" data-go="chat">去对话</button></div>
+          <div id="overviewContent" class="hidden"></div>
+        </section>
+
+        <section class="app-view" data-view-panel="itinerary">
+          <div id="itineraryEmpty" class="empty-view"><i data-lucide="calendar-days"></i><h2>每日路线还未生成</h2><p>规划完成后可逐日查看时间、地点和注意事项。</p><button type="button" data-go="chat">去对话</button></div>
+          <div id="itineraryContent" class="hidden"></div>
+        </section>
+
+        <section class="app-view" data-view-panel="map">
+          <div id="mapEmpty" class="empty-view"><i data-lucide="map"></i><h2>高德路线还未生成</h2><p>完成规划后可查看出发地、目的地和路线。</p><button type="button" data-go="chat">去对话</button></div>
+          <div id="mapContent" class="map-wrap hidden">
+            <header class="section-head">
+              <div><p>AMAP ROUTE</p><h2 id="mapTitle">高德旅游地图</h2></div>
+              <div id="mapModes" class="segmented" aria-label="交通方式">
+                <button type="button" data-map-mode="高铁">高铁</button><button type="button" data-map-mode="飞机">飞机</button>
+                <button type="button" data-map-mode="自驾">自驾</button><button type="button" data-map-mode="火车">火车</button>
+              </div>
+            </header>
+            <div class="map-stats"><div><span>路线</span><strong id="mapRouteName">--</strong></div><div><span>常规用时</span><strong id="mapDuration">--</strong></div><div><span>方式</span><strong id="mapTransport">--</strong></div></div>
+            <div class="map-frame">
+              <div id="amapContainer" aria-label="高德旅游路线地图"></div>
+              <div id="mapConfigNotice" class="map-config hidden"><i data-lucide="key-round"></i><h3>需要配置高德 Web 端 Key</h3><p>请在 `D:\gongneng\探山2\.env` 填写 `AMAP_JS_KEY` 和 `AMAP_SECURITY_JS_CODE`，保存后重启服务。</p></div>
+            </div>
+            <div class="map-detail"><strong id="mapDescription">--</strong><span id="mapDisclaimer">自驾使用高德道路规划；高铁、火车和飞机展示城市枢纽走向。</span></div>
+          </div>
+        </section>
+
+        <section class="app-view" data-view-panel="gallery">
+          <div class="gallery-wrap">
+            <header class="section-head"><div><p>REAL DESTINATION PHOTOS</p><h2>目的地景点图库</h2></div><span id="galleryLabel">等待目的地</span></header>
+            <div id="galleryGrid" class="gallery-grid" aria-live="polite"><div class="gallery-empty"><i data-lucide="images"></i><p>完成行程后，仅显示当前目的地的高德景点实景图。</p></div></div>
+            <p class="image-disclosure">图片来自高德地点数据返回的景点照片；仅展示当前行程目的地，图片版权归原作者或来源平台所有。</p>
+          </div>
+        </section>
+
+        <section class="app-view" data-view-panel="budget">
+          <div id="budgetEmpty" class="empty-view"><i data-lucide="wallet-cards"></i><h2>预算还未生成</h2><p>生成行程后将按住宿、餐饮、门票和市内交通拆分。</p><button type="button" data-go="chat">去对话</button></div>
+          <div id="budgetContent" class="hidden"></div>
+        </section>
+
+        <section class="app-view" data-view-panel="preparation">
+          <div id="preparationEmpty" class="empty-view"><i data-lucide="luggage"></i><h2>准备清单还未生成</h2><p>完成规划后将按目的地、天数和同行人生成清单。</p><button type="button" data-go="chat">去对话</button></div>
+          <div id="preparationContent" class="hidden"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script>window.TANSHAN_AMAP_CONFIG = {{ amap_config | tojson }};</script>
+  <script src="https://webapi.amap.com/loader.js"></script>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script src="{{ url_for('static', path='/app.js') }}?v=20260716-agent-weather" defer></script>
+</body>
+</html>
